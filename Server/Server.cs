@@ -3,15 +3,25 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CSharpStream.Models;
 
 namespace CSharpStream.Server
 {
-    public class Server(int port, CancellationToken cancellationToken)
+    public class Server
     {
-        private readonly TcpListener _listener = new(IPAddress.Any, port);
+        private readonly TcpListener _listener;
         private readonly ConcurrentDictionary<string, TcpClient> _clients = new();
+
+        private readonly CancellationToken _cancellationToken;
+
+        public Server(int port, CancellationToken cancellationToken)
+        {
+            _listener = new TcpListener(IPAddress.Any, port);
+            _cancellationToken = cancellationToken;
+        }
 
         public async Task StartAsync()
         {
@@ -20,9 +30,9 @@ namespace CSharpStream.Server
 
             try
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (!_cancellationToken.IsCancellationRequested)
                 {
-                    var client = await _listener.AcceptTcpClientAsync(cancellationToken);
+                    var client = await _listener.AcceptTcpClientAsync(_cancellationToken);
                     var clientKey = client.Client.RemoteEndPoint?.ToString() ?? Guid.NewGuid().ToString();
 
                     if (!_clients.TryAdd(clientKey, client)) continue;
@@ -30,10 +40,9 @@ namespace CSharpStream.Server
                     _ = HandleClientAsync(client, clientKey);
                 }
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException)
             {
                 Console.WriteLine("Server stopped.");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
             finally
             {
@@ -44,24 +53,42 @@ namespace CSharpStream.Server
 
         private async Task HandleClientAsync(TcpClient client, string clientKey)
         {
-            var buffer = new byte[1024];
+            var buffer = new byte[4096];
             var stream = client.GetStream();
 
             try
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (!_cancellationToken.IsCancellationRequested)
                 {
-                    var byteCount = await stream.ReadAsync(buffer, cancellationToken);
-                    if (byteCount == 0)
+                    var bytesRead = await stream.ReadAsync(buffer, _cancellationToken);
+                    if (bytesRead == 0)
                     {
                         // Client disconnected
                         break;
                     }
 
-                    var message = Encoding.UTF8.GetString(buffer, 0, byteCount);
-                    Console.WriteLine($"Received from {clientKey}: {message.Trim()}");
+                    var json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Message? message;
 
-                    await BroadcastMessageAsync(message, excludeClientKey: clientKey);
+                    try
+                    {
+                        message = JsonSerializer.Deserialize<Message>(json);
+                    }
+                    catch (JsonException)
+                    {
+                        Console.WriteLine($"Invalid message format from {clientKey}");
+                        continue;
+                    }
+
+                    if (message is null)
+                    {
+                        Console.WriteLine($"Null message received from {clientKey}");
+                        continue;
+                    }
+
+                    Console.WriteLine($"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
+
+                    await BroadcastMessageAsync(json, excludeClientKey: clientKey);
                 }
             }
             catch (Exception ex)
@@ -75,15 +102,10 @@ namespace CSharpStream.Server
                 Console.WriteLine($"Client disconnected: {clientKey}");
             }
         }
-        
-        /// <summary>
-        /// main loop to broadcast message to all clients.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="excludeClientKey"></param>
-        private async Task BroadcastMessageAsync(string message, string excludeClientKey)
+
+        private async Task BroadcastMessageAsync(string jsonMessage, string excludeClientKey)
         {
-            var messageBytes = Encoding.UTF8.GetBytes(message);
+            var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
 
             foreach (var (key, client) in _clients)
             {
@@ -92,7 +114,7 @@ namespace CSharpStream.Server
                 try
                 {
                     var stream = client.GetStream();
-                    await stream.WriteAsync(messageBytes, cancellationToken);
+                    await stream.WriteAsync(messageBytes, _cancellationToken);
                 }
                 catch
                 {

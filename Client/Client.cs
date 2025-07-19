@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpStream.Models;
@@ -9,17 +10,12 @@ namespace CSharpStream.Client
 {
     public class Client
     {
-        /// <summary>
-        /// Receives and sends messages to other clients/server.
-        /// </summary>
-        /// <param name="host"></param>
-        /// <param name="port"></param>
-        /// <param name="cancellationToken"></param>
         public async Task RunAsync(string host, int port, CancellationToken cancellationToken = default)
         {
             Console.Write("Enter your name: ");
-            var userName = Console.ReadLine()?.Trim() ?? "Anonymous";
-            var user = new User { Name = userName };
+            var userName = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(userName))
+                userName = "Anonymous";
 
             using var client = new TcpClient();
             await client.ConnectAsync(host, port, cancellationToken);
@@ -27,33 +23,48 @@ namespace CSharpStream.Client
 
             await using var stream = client.GetStream();
 
-            // Start receiving messages
             var receiveTask = Task.Run(async () =>
             {
-                var buffer = new byte[512];
+                var buffer = new byte[4096];
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var bytesRead = await stream.ReadAsync(buffer, cancellationToken);
-                    if (bytesRead == 0)
+                    if (stream != null)
                     {
-                        Console.WriteLine("Server disconnected.");
-                        break;
-                    }
+                        var bytesRead = await stream.ReadAsync(buffer, cancellationToken);
+                        if (bytesRead == 0)
+                        {
+                            Console.WriteLine("Server disconnected.");
+                            break;
+                        }
 
-                    var response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine(response.Trim());
+                        var json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        Message? message;
+
+                        try
+                        {
+                            message = JsonSerializer.Deserialize<Message>(json);
+                        }
+                        catch (JsonException)
+                        {
+                            Console.WriteLine("Received malformed message.");
+                            continue;
+                        }
+
+                        if (message != null)
+                            Console.WriteLine($"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
+                    }
                 }
             }, cancellationToken);
 
-            
             while (!cancellationToken.IsCancellationRequested)
             {
-                var message = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(message))
+                var input = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(input))
                     continue;
 
-                var fullMessage = $"Received From {user.Name}: {message}";
-                var bytes = Encoding.UTF8.GetBytes(fullMessage + "\n");
+                var message = new Message(input, userName);
+                var json = JsonSerializer.Serialize(message) + "\n";
+                var bytes = Encoding.UTF8.GetBytes(json);
 
                 try
                 {
