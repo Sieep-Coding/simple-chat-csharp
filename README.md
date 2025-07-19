@@ -7,10 +7,13 @@ Ported from a [Go project I did last year.](https://github.com/Sieep-Coding/chat
 ![PopOS Passing](https://img.shields.io/badge/PopOS-Passing-darkgreen.svg)
 
 ### Server
+Listens for connections, displays in real-time.
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/server.png)
 
 ### Client
+Steve sends a message to the server.
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/client1.png)
+Nick sends a message to the server.
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/client2.png)
 # Guide
 
