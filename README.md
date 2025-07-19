@@ -13,6 +13,7 @@ Listens for connections, displays in real-time.
 ### Client
 Steve sends a message to the server.
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/client1.png)
+
 Nick sends a message to the server.
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/client2.png)
 # Guide
