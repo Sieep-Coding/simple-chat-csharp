@@ -15,7 +15,7 @@ namespace CSharpStream
 
         private static string SafeRemoteAddress(TcpClient client) =>
             SafeMode ? "[REDACTED]" : client.Client.RemoteEndPoint?.ToString() ?? "Unknown";
-
+        
         public async Task Listen(int port, CancellationToken token)
         {
             var listener = new TcpListener(IPAddress.Any, port);
@@ -37,7 +37,7 @@ namespace CSharpStream
                     }
                     else
                     {
-                        await Task.Delay(100, token); // avoid busy-waiting
+                        await Task.Delay(100, token);
                     }
                 }
             }
@@ -72,7 +72,8 @@ namespace CSharpStream
             }
             catch (OperationCanceledException)
             {
-                // expected on shutdown
+                Console.WriteLine("Client cancelled");
+                Console.WriteLine($"Client {address} closed");
             }
             catch (Exception ex)
             {

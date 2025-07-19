@@ -9,6 +9,12 @@ namespace CSharpStream.Client
 {
     public class Client
     {
+        /// <summary>
+        /// Receives and sends messages to other clients/server.
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="cancellationToken"></param>
         public async Task RunAsync(string host, int port, CancellationToken cancellationToken = default)
         {
             Console.Write("Enter your name: ");
@@ -39,7 +45,7 @@ namespace CSharpStream.Client
                 }
             }, cancellationToken);
 
-            // Send user input messages prefixed with user name
+            
             while (!cancellationToken.IsCancellationRequested)
             {
                 var message = Console.ReadLine();

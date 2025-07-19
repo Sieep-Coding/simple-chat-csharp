@@ -8,17 +8,10 @@ using System.Threading.Tasks;
 
 namespace CSharpStream.Server
 {
-    public class Server
+    public class Server(int port, CancellationToken cancellationToken)
     {
-        private readonly TcpListener _listener;
+        private readonly TcpListener _listener = new(IPAddress.Any, port);
         private readonly ConcurrentDictionary<string, TcpClient> _clients = new();
-        private readonly CancellationToken _cancellationToken;
-
-        public Server(int port, CancellationToken cancellationToken)
-        {
-            _listener = new TcpListener(IPAddress.Any, port);
-            _cancellationToken = cancellationToken;
-        }
 
         public async Task StartAsync()
         {
@@ -27,21 +20,20 @@ namespace CSharpStream.Server
 
             try
             {
-                while (!_cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    var client = await _listener.AcceptTcpClientAsync(_cancellationToken);
+                    var client = await _listener.AcceptTcpClientAsync(cancellationToken);
                     var clientKey = client.Client.RemoteEndPoint?.ToString() ?? Guid.NewGuid().ToString();
 
-                    if (_clients.TryAdd(clientKey, client))
-                    {
-                        Console.WriteLine($"Client connected: {clientKey}");
-                        _ = HandleClientAsync(client, clientKey); // fire-and-forget
-                    }
+                    if (!_clients.TryAdd(clientKey, client)) continue;
+                    Console.WriteLine($"Client connected: {clientKey}");
+                    _ = HandleClientAsync(client, clientKey);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                // Cancellation requested, shutting down server.
+                Console.WriteLine("Server stopped.");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
             finally
             {
@@ -57,9 +49,9 @@ namespace CSharpStream.Server
 
             try
             {
-                while (!_cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    int byteCount = await stream.ReadAsync(buffer, _cancellationToken);
+                    var byteCount = await stream.ReadAsync(buffer, cancellationToken);
                     if (byteCount == 0)
                     {
                         // Client disconnected
@@ -83,27 +75,30 @@ namespace CSharpStream.Server
                 Console.WriteLine($"Client disconnected: {clientKey}");
             }
         }
-
+        
+        /// <summary>
+        /// main loop to broadcast message to all clients.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="excludeClientKey"></param>
         private async Task BroadcastMessageAsync(string message, string excludeClientKey)
         {
             var messageBytes = Encoding.UTF8.GetBytes(message);
 
-            foreach (var kvp in _clients)
+            foreach (var (key, client) in _clients)
             {
-                if (kvp.Key == excludeClientKey) continue;
+                if (key == excludeClientKey) continue;
 
-                var client = kvp.Value;
                 try
                 {
                     var stream = client.GetStream();
-                    await stream.WriteAsync(messageBytes, _cancellationToken);
+                    await stream.WriteAsync(messageBytes, cancellationToken);
                 }
                 catch
                 {
-                    // Failed to send message, remove client
-                    RemoveClient(kvp.Key);
+                    RemoveClient(key);
                     client.Close();
-                    Console.WriteLine($"Removed client {kvp.Key} due to send failure.");
+                    Console.WriteLine($"Removed client {key} due to send failure.");
                 }
             }
         }
