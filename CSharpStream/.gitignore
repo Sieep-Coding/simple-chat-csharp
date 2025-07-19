@@ -1,0 +1,33 @@
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Rider and Visual Studio specific
+*.DotSettings.user
+.ReSharper*/
+
+# Dotnet artifacts
+project.lock.json
+project.fragment.lock.json
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
