@@ -3,6 +3,9 @@ A terminal-based chat server written in C#.
 
 Ported from a [Go project I did last year.](https://github.com/Sieep-Coding/chatserver)
 
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![PopOS Passing](https://img.shields.io/badge/PopOS-Passing-darkgreen.svg)
+
 ### Server
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/server.png)
 
