@@ -38,6 +38,8 @@ dotnet run --project CSharpStream client
 - `CSharpStream.Server` – TCP server implementation handling client connections and message broadcasting.
 - `CSharpStream.Client` – TCP client implementation for sending and receiving chat messages.
 - `CSharpStream.Models` – Contains the `Message` and `User` models, used for structured data transfer and managing user identity information.
+- `ChatServer.cs` - Works as the service layer.
+- `Program.cs` - Starts client/server based on command line arguments.
 
 #### Troubleshooting
 - Ensure no firewall or network restrictions block port 8000.
