@@ -7,6 +7,7 @@ Ported from a [Go project I did last year.](https://github.com/Sieep-Coding/chat
 
 #### Requirements
 `.NET 9 SDK`
+
 `Compatible terminal environment (Linux, macOS, Windows)`
 
 #### Running the Server
