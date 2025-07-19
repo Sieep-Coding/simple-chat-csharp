@@ -8,8 +8,7 @@ Ported from a [Go project I did last year.](https://github.com/Sieep-Coding/chat
 
 ### Client
 ![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/client1.png)
-![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/pic1.png)
-
+![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/client2.png)
 # Guide
 
 #### Requirements
