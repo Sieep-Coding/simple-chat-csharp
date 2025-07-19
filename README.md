@@ -37,4 +37,4 @@ Ported from a [Go project I did last year.](https://github.com/Sieep-Coding/chat
 - Use `Ctrl+C` to exit clients and server cleanly.
 
 ### License
-MIT License
+[MIT License](https://github.com/Sieep-Coding/simple-chat-csharp/tree/main?tab=MIT-1-ov-file)
