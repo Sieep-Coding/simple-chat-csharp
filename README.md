@@ -19,14 +19,18 @@ Ported from a [Go project I did last year.](https://github.com/Sieep-Coding/chat
 #### Running the Server
 - Open a terminal and navigate to the project root directory.
 - Run:
- `dotnet run --project CSharpStream server`
+```bash
+dotnet run --project CSharpStream server
+```
 - The server listens on port 8000 by default.
-- Press Ctrl+C to gracefully stop the server.
+- Press `Ctrl+C` to gracefully stop the server.
 
 #### Running the Client
 - Open a new terminal window.
 - Run: 
-`dotnet run --project CSharpStream client`
+```bash
+dotnet run --project CSharpStream client
+```
 - When prompted, enter your username.
 - Type messages and press Enter to send them to the chat.
 
