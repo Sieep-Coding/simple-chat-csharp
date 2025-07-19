@@ -1,0 +1,14 @@
+/home/nickstambaugh/code/csharp-stream/CSharpStream/bin/Debug/net9.0/CSharpStream
+/home/nickstambaugh/code/csharp-stream/CSharpStream/bin/Debug/net9.0/CSharpStream.deps.json
+/home/nickstambaugh/code/csharp-stream/CSharpStream/bin/Debug/net9.0/CSharpStream.runtimeconfig.json
+/home/nickstambaugh/code/csharp-stream/CSharpStream/bin/Debug/net9.0/CSharpStream.dll
+/home/nickstambaugh/code/csharp-stream/CSharpStream/bin/Debug/net9.0/CSharpStream.pdb
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.GeneratedMSBuildEditorConfig.editorconfig
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.AssemblyInfoInputs.cache
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.AssemblyInfo.cs
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.csproj.CoreCompileInputs.cache
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.dll
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/refint/CSharpStream.dll
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.pdb
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/CSharpStream.genruntimeconfig.cache
+/home/nickstambaugh/code/csharp-stream/CSharpStream/obj/Debug/net9.0/ref/CSharpStream.dll
