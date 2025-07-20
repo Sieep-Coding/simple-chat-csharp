@@ -6,7 +6,7 @@ namespace CSharpStream.Models
 {
     public static class Logger
     {
-        private static readonly object _lock = new();
+        private static readonly Lock Lock = new();
         private static StreamWriter? _fileWriter;
         private static string _logFilePath = string.Empty;
 
@@ -30,7 +30,7 @@ namespace CSharpStream.Models
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var formatted = $"[{timestamp}] [{level}] [{sender}] {message}";
 
-            lock (_lock)
+            lock (Lock)
             {
                 var oldColor = Console.ForegroundColor;
                 Console.ForegroundColor = color;
@@ -43,7 +43,7 @@ namespace CSharpStream.Models
 
         public static void Shutdown()
         {
-            lock (_lock)
+            lock (Lock)
             {
                 _fileWriter?.Dispose();
                 _fileWriter = null;

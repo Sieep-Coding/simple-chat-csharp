@@ -1,8 +1,10 @@
 using CSharpStream.Models;
 
-class Program
+namespace CSharpStream;
+
+internal static class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         Logger.Init("debug.txt");
 

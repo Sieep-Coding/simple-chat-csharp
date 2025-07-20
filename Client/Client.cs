@@ -12,7 +12,7 @@ namespace CSharpStream.Client
     {
         public async Task RunAsync(string host, int port, CancellationToken cancellationToken = default)
         {
-            Console.Write("Enter your name: ");
+            Console.Write("Enter your name (Hit 'Enter' to remain anonymous): ");
             var user = new User
             {
                 Name = Console.ReadLine()?.Trim()
