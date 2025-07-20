@@ -9,7 +9,7 @@ Recreated from a [Go project I did last year.](https://github.com/Sieep-Coding/c
 
 ### Server
 Listens for connections & messages, logs in real-time.
-![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/server.png)
+![](https://github.com/Sieep-Coding/simple-chat-csharp/blob/main/Public/image-server-logged.png)
 
 ### Client
 Steve sends a message to the server.
