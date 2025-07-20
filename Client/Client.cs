@@ -13,10 +13,13 @@ namespace CSharpStream.Client
         public async Task RunAsync(string host, int port, CancellationToken cancellationToken = default)
         {
             Console.Write("Enter your name: ");
-            var userName = Console.ReadLine()?.Trim();
-            Logger.Info("Client", $"Username: {userName}");
-            if (string.IsNullOrEmpty(userName))
-                userName = "Anonymous";
+            var user = new User
+            {
+                Name = Console.ReadLine()?.Trim()
+            };
+            Logger.Info("Client", $"Username: {user.Name}");
+            if (string.IsNullOrEmpty(user.Name))
+                user.Name = "Anonymous";
 
             using var client = new TcpClient();
             await client.ConnectAsync(host, port, cancellationToken);
@@ -63,7 +66,7 @@ namespace CSharpStream.Client
                 if (string.IsNullOrWhiteSpace(input))
                     continue;
 
-                var message = new Message(input, userName);
+                var message = new Message(input, user.Name);
                 var json = JsonSerializer.Serialize(message) + "\n";
                 var bytes = Encoding.UTF8.GetBytes(json);
 
