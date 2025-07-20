@@ -14,13 +14,13 @@ namespace CSharpStream.Client
         {
             Console.Write("Enter your name: ");
             var userName = Console.ReadLine()?.Trim();
+            Logger.Info("Client", $"Username: {userName}");
             if (string.IsNullOrEmpty(userName))
                 userName = "Anonymous";
 
             using var client = new TcpClient();
             await client.ConnectAsync(host, port, cancellationToken);
-            Console.WriteLine($"Connected to {host}:{port}");
-
+            Logger.Info("Client", $"Client connected: {host}:{port}");
             await using var stream = client.GetStream();
 
             var receiveTask = Task.Run(async () =>
@@ -28,11 +28,13 @@ namespace CSharpStream.Client
                 var buffer = new byte[4096];
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    // ReSharper disable once AccessToDisposedClosure
                     if (stream == null) continue;
                     var bytesRead = await stream.ReadAsync(buffer, cancellationToken);
                     if (bytesRead == 0)
                     {
                         Console.WriteLine("Server disconnected.");
+                        Logger.Info("Server", "Server disconnected.");
                         break;
                     }
 
@@ -46,6 +48,7 @@ namespace CSharpStream.Client
                     catch (JsonException)
                     {
                         Console.WriteLine("Received malformed message.");
+                        Logger.Error("Client",$"Received malformed message");
                         continue;
                     }
 

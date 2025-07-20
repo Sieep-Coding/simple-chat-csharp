@@ -37,8 +37,7 @@ namespace CSharpStream.Server
                     var clientKey = client.Client.RemoteEndPoint?.ToString() ?? Guid.NewGuid().ToString();
 
                     if (!_clients.TryAdd(clientKey, client)) continue;
-                    Console.WriteLine($"Client {clientKey} connected.");
-                    Logger.Info("Server", $"Client connected: {clientKey}");
+                    Logger.Debug("Server", $"Client connected: {clientKey}");
                     _ = HandleClientAsync(client, clientKey);
                 }
             }
@@ -86,10 +85,10 @@ namespace CSharpStream.Server
                     if (message is null)
                     {
                         Console.WriteLine($"Null message received from {clientKey}");
+                        Logger.Error("Server",$"Null message received from {clientKey}");
                         continue;
                     }
 
-                    Console.WriteLine($"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
                     Logger.Info("Server", $"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
 
                     await BroadcastMessageAsync(json, excludeClientKey: clientKey);
