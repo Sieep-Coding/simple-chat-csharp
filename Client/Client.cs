@@ -62,21 +62,31 @@ namespace CSharpStream.Client
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var input = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(input))
-                    continue;
-
-                var message = new Message(input, user.Name);
-                var json = JsonSerializer.Serialize(message) + "\n";
-                var bytes = Encoding.UTF8.GetBytes(json);
-
                 try
                 {
+                    var input = Console.ReadLine();
+                    if (string.IsNullOrWhiteSpace(input))
+                        continue;
+                    var message = new Message(input, user.Name);
+                    var json = JsonSerializer.Serialize(message) + "\n";
+                    var bytes = Encoding.UTF8.GetBytes(json);
                     await stream.WriteAsync(bytes, cancellationToken);
+                }
+                catch (JsonException)
+                {
+                    Logger.Error("Client", $"Received malformed message");
+                }
+                catch (InvalidOperationException)
+                {
+                    Logger.Error("Client", $"Received malformed message");
+                }
+                catch (OperationCanceledException)
+                {
+                    Logger.Error("Client", $"Client disconnected.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Send error: {ex.Message}");
+                    Logger.Error("Client", $"Received malformed message: {ex.Message}\n Stack trace: {ex.StackTrace}");
                     break;
                 }
             }
