@@ -3,6 +3,9 @@ A terminal-based chat server written in C#.
 
 Recreated from a [Go project I did last year.](https://github.com/Sieep-Coding/chatserver)
 
+> [!WARNING]  
+> Only Tested on Linux PopOS!
+
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![PopOS Passing](https://img.shields.io/badge/PopOS-Passing-darkgreen.svg)
 [![wakatime](https://wakatime.com/badge/user/2156ce13-ae9d-4c0e-a543-89b2bddcd2f6/project/5b0c4b85-4c80-47c8-a9ae-26af61b969a9.svg)](https://wakatime.com/badge/user/2156ce13-ae9d-4c0e-a543-89b2bddcd2f6/project/5b0c4b85-4c80-47c8-a9ae-26af61b969a9)
