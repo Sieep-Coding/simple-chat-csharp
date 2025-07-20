@@ -26,7 +26,8 @@ namespace CSharpStream.Server
         public async Task StartAsync()
         {
             _listener.Start();
-            Console.WriteLine("Server started. Listening for connections...");
+            Console.WriteLine("Server started");
+            Logger.Info("Server", "Server started. Listening for connections...");
 
             try
             {
@@ -36,18 +37,19 @@ namespace CSharpStream.Server
                     var clientKey = client.Client.RemoteEndPoint?.ToString() ?? Guid.NewGuid().ToString();
 
                     if (!_clients.TryAdd(clientKey, client)) continue;
-                    Console.WriteLine($"Client connected: {clientKey}");
+                    Console.WriteLine($"Client {clientKey} connected.");
+                    Logger.Info("Server", $"Client connected: {clientKey}");
                     _ = HandleClientAsync(client, clientKey);
                 }
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("Server stopped.");
+                Logger.Error("Server", "Server stopped.");
             }
             finally
             {
                 _listener.Stop();
-                Console.WriteLine("Server stopped.");
+                Logger.Info("Server", "Server stopped.");
             }
         }
 
@@ -63,7 +65,7 @@ namespace CSharpStream.Server
                     var bytesRead = await stream.ReadAsync(buffer, _cancellationToken);
                     if (bytesRead == 0)
                     {
-                        // Client disconnected
+                        Logger.Error("Server", $"Client {clientKey} disconnected.");
                         break;
                     }
 
@@ -74,9 +76,10 @@ namespace CSharpStream.Server
                     {
                         message = JsonSerializer.Deserialize<Message>(json);
                     }
-                    catch (JsonException)
+                    catch (JsonException jsonException)
                     {
-                        Console.WriteLine($"Invalid message format from {clientKey}");
+                        Logger.Error("Server",$"Invalid message format from {clientKey}");
+                        Logger.Debug("Server", jsonException.Message + "\n" + jsonException.StackTrace);
                         continue;
                     }
 
@@ -87,6 +90,7 @@ namespace CSharpStream.Server
                     }
 
                     Console.WriteLine($"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
+                    Logger.Info("Server", $"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
 
                     await BroadcastMessageAsync(json, excludeClientKey: clientKey);
                 }
@@ -94,6 +98,8 @@ namespace CSharpStream.Server
             catch (Exception ex)
             {
                 Console.WriteLine($"Error with client {clientKey}: {ex.Message}");
+                Logger.Error("Server", $"Error with client {clientKey}: {ex.Message}");
+                Logger.Debug("Server", $"Error with client {clientKey}: {ex.StackTrace}");
             }
             finally
             {
@@ -116,18 +122,30 @@ namespace CSharpStream.Server
                     var stream = client.GetStream();
                     await stream.WriteAsync(messageBytes, _cancellationToken);
                 }
-                catch
+                catch (Exception ex)
                 {
                     RemoveClient(key);
                     client.Close();
                     Console.WriteLine($"Removed client {key} due to send failure.");
+                    Logger.Info("Server", $"Client {key} due to send failure.");
+                    Logger.Debug("Server", $"Error: {ex.Message} \n"  + ex.StackTrace);
                 }
             }
         }
 
         private void RemoveClient(string clientKey)
         {
-            _clients.TryRemove(clientKey, out _);
+            try
+            {
+                _clients.TryRemove(clientKey, out _);
+                Logger.Info("Server", $"Client {clientKey} removed.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Server", $"Error removing client {clientKey}.");
+                Logger.Debug("Server", $"Error: {ex.Message} \n"  + ex.StackTrace);
+                throw;
+            }
         }
     }
 }

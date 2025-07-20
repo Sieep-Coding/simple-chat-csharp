@@ -1,42 +1,40 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using CSharpStream.Server;
-using CSharpStream.Client;
+using CSharpStream.Models;
 
 class Program
 {
     static async Task Main(string[] args)
     {
+        Logger.Init("debug.txt");
+
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: dotnet run [server|client]");
+            Logger.Warn("Program", "Usage: dotnet run [server|client]");
             return;
         }
 
         var mode = args[0].ToLowerInvariant();
 
-        if (mode == "server")
+        switch (mode)
         {
-            using var cts = new CancellationTokenSource();
-            var server = new Server(8000, cts.Token); // pass port and token
-
-            Console.CancelKeyPress += (s, e) =>
+            case "server":
             {
-                e.Cancel = true;
-                cts.Cancel();
-            };
+                var server = new CSharpStream.Server.Server(8000, CancellationToken.None);
+                Logger.Info("Program", "Starting server...");
+                await server.StartAsync();
+                break;
+            }
+            case "client":
+            {
+                var client = new CSharpStream.Client.Client();
+                Logger.Info("Program", "Starting client...");
+                await client.RunAsync("127.0.0.1", 8000);
+                break;
+            }
+            default:
+                Logger.Warn("Program", "Unknown mode. Use 'server' or 'client'.");
+                break;
+        }
 
-            await server.StartAsync();
-        }
-        else if (mode == "client")
-        {
-            var client = new Client();
-            await client.RunAsync("127.0.0.1", 8000);
-        }
-        else
-        {
-            Console.WriteLine("Unknown mode. Use 'server' or 'client'.");
-        }
+        Logger.Shutdown();
     }
 }

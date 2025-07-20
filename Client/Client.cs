@@ -28,31 +28,29 @@ namespace CSharpStream.Client
                 var buffer = new byte[4096];
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (stream != null)
+                    if (stream == null) continue;
+                    var bytesRead = await stream.ReadAsync(buffer, cancellationToken);
+                    if (bytesRead == 0)
                     {
-                        var bytesRead = await stream.ReadAsync(buffer, cancellationToken);
-                        if (bytesRead == 0)
-                        {
-                            Console.WriteLine("Server disconnected.");
-                            break;
-                        }
-
-                        var json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        Message? message;
-
-                        try
-                        {
-                            message = JsonSerializer.Deserialize<Message>(json);
-                        }
-                        catch (JsonException)
-                        {
-                            Console.WriteLine("Received malformed message.");
-                            continue;
-                        }
-
-                        if (message != null)
-                            Console.WriteLine($"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
+                        Console.WriteLine("Server disconnected.");
+                        break;
                     }
+
+                    var json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Message? message;
+
+                    try
+                    {
+                        message = JsonSerializer.Deserialize<Message>(json);
+                    }
+                    catch (JsonException)
+                    {
+                        Console.WriteLine("Received malformed message.");
+                        continue;
+                    }
+
+                    if (message != null)
+                        Console.WriteLine($"[{message.Timestamp:T}] {message.Sender}: {message.Content}");
                 }
             }, cancellationToken);
 
