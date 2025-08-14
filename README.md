@@ -1,3 +1,8 @@
+> [!Warning]
+> This code is not maintained here anymore and has moved to GitLab.
+> 
+> For the most up-to-date code, visit the [GitLab](https://gitlab.com/Sieep-Coding/simple-chat-csharp) repository.
+
 # Simple Chat Server
 A terminal-based chat server written in C#.
 
